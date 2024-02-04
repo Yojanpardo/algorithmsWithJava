@@ -1,6 +1,5 @@
 package dev.yojanpardo.colasypilas;
 
-import java.util.ArrayList;
 import java.util.Stack;
 
 /**
