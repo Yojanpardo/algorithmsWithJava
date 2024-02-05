@@ -18,11 +18,20 @@ public class RottingOranges {
             new Point(-1,0),
             new Point(0,-1)
     );
+
+    private static int healthyOranges = 0;
     public static void main(String[] args) {
         final int[][] orangesBox = buildOrangesBox();
         System.out.println("here is the oranges box: ");
         printMatrix(orangesBox);
-        System.out.printf("Days required for oranges to be rotten: [%d]", calculateDays(orangesBox));
+
+        int daysForAllOrangesGetRotten = calculateDaysUntilAllOrangesRot(orangesBox);
+
+        if(healthyOranges == 0) {
+            System.out.printf("Days required for oranges to be rotten: [%d]\n", daysForAllOrangesGetRotten);
+        } else {
+            System.out.printf("all oranges could not get rotten, there are [%d] oranges healthy.\n", healthyOranges);
+        }
     }
 
     /**
@@ -32,31 +41,30 @@ public class RottingOranges {
      * @param orangesBox with the oranges distribution
      * @return the quantity of days required for oranges to get rotten
      */
-    private static int calculateDays(int[][] orangesBox) {
+    private static int calculateDaysUntilAllOrangesRot(int[][] orangesBox) {
         if(Objects.isNull(orangesBox) || orangesBox.length == 0){
             return 0;
         }
 
-        int days = 0;
+        final Queue<Point> rottenOranges = new LinkedList<>();
 
         for(int x = 0; x < orangesBox.length; x++){
             for(int y = 0; y < orangesBox[x].length; y++){
                 if(orangesBox[x][y] == 2){
                     final Point rottenOrange = new Point(x,y);
+                    rottenOranges.addAll(getAdjacentHealthyOranges(rottenOrange, orangesBox));
                     VISITED_ROTTEN_ORANGES.add(rottenOrange);
-                    days = Math.max(days, startSpreading(rottenOrange, orangesBox));
+                } else if(orangesBox[x][y] == 1) {
+                    healthyOranges++;
                 }
             }
         }
 
-
-        return days;
+        return spreadRotThroughOranges(rottenOranges, orangesBox);
     }
 
-    private static int startSpreading(Point point, int[][] orangesBox) {
+    private static int spreadRotThroughOranges(final Queue<Point> adjacentOranges, int[][] orangesBox) {
         int days = 0;
-
-        final Queue<Point> adjacentOranges = getAdjacentOranges(point, orangesBox);
 
         while (!adjacentOranges.isEmpty()){
 
@@ -66,7 +74,8 @@ public class RottingOranges {
                 Point healthyOrange = adjacentOranges.poll();
                 if(Objects.nonNull(healthyOrange)){
                     orangesBox[healthyOrange.getX()][healthyOrange.getY()] = 2;
-                    adjacentOranges.addAll(getAdjacentOranges(healthyOrange, orangesBox));
+                    healthyOranges--;
+                    adjacentOranges.addAll(getAdjacentHealthyOranges(healthyOrange, orangesBox));
                 }
             }
 
@@ -78,7 +87,7 @@ public class RottingOranges {
         return days;
     }
 
-    private static Queue<Point> getAdjacentOranges(Point point, int[][] orangesBox) {
+    private static Queue<Point> getAdjacentHealthyOranges(Point point, int[][] orangesBox) {
         final Queue<Point> adjacentOranges = new LinkedList<>();
 
         for(Point direction : SPREAD_DIRECTIONS){
@@ -111,7 +120,7 @@ public class RottingOranges {
                 {1,1,1,0},
                 {1,0,1,1},
                 {1,2,0,0},
-                {1,1,0,1},
+                {1,1,1,1},
         };
     }
 }
