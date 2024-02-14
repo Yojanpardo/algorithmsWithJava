@@ -18,7 +18,7 @@ public class WordSearch {
         for(int x = 0; x < matrix.length; x++){
             for(int y = 0; y < matrix[x].length; y++){
                 if(word.startsWith(matrix[x][y])){
-                    return dfs(word, matrix, x, y, "", x, y).equals(word);
+                    return dfs(word, matrix, x, y, "", x, y,0).equals(word);
                 }
             }
         }
@@ -26,17 +26,19 @@ public class WordSearch {
         return false;
     }
 
-    private static String dfs(String word, String[][] matrix, int x, int y, String actualWord, int prevX, int prevY) {
+    private static String dfs(String word, String[][] matrix, int x, int y, String actualWord, int prevX, int prevY, int index) {
         if(word.equals(actualWord)) return actualWord;
         if(x < 0 || x >= matrix.length
                 || y < 0 || y >= matrix[x].length
-                || actualWord.length() >= word.length()) return "";
+                || actualWord.length() >= word.length()
+                || !String.valueOf(word.charAt(index)).equals(matrix[x][y])
+        ) return "";
 
         for(int[] direction : DIRECTIONS){
             String newWord = "";
             int newX = x + direction[0], newY = y + direction[1];
             if(!(newX == prevX && newY == prevY))
-                newWord = dfs(word, matrix, newX, newY, actualWord + matrix[x][y], x, y);
+                newWord = dfs(word, matrix, newX, newY, actualWord + matrix[x][y], x, y, index+1);
             if (newWord.equals(word)){
                 return word;
             }
